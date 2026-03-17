@@ -1,0 +1,32 @@
+@model MyApp_MVC.Dtos.CreateItemDto
+@{
+    ViewData["Title"] = "Create New Item";
+}
+
+<link rel="stylesheet" href="~/css/items.css" />
+
+<div class="items-container" style="max-width: 600px;">
+    <div class="glass-card">
+        <h3>Add New Product</h3>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Enter the details below to add a new item to your inventory.</p>
+
+        <form asp-action="Create" method="post">
+            <div class="form-group">
+                <label asp-for="Name">Product Name</label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. Premium Headphones" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Price">Unit Price</label>
+                <input asp-for="Price" type="number" step="0.01" class="form-control" placeholder="0.00" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <button type="submit" class="premium-btn">Create Product</button>
+                <a asp-action="GetAllItems"  class="premium-btn" >List Of Items</a>
+            </div>
+        </form>
+    </div>
+</div>
