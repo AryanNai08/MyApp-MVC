@@ -7,7 +7,7 @@ namespace MyApp_MVC.Controllers
     {
         public IActionResult Overview()
         {
-            var item = new Item() { Name = "Aryan b limbachiya" };
+            var item = new Item() { Name = "Aryan B limbachiya" };
             return View(item);
         }
 
