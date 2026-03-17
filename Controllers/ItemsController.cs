@@ -10,5 +10,10 @@ namespace MyApp_MVC.Controllers
             var item = new Item() { Name = "Aryan" };
             return View(item);
         }
+
+        public IActionResult Edit(int id)
+        {
+            return Content("id = " + id);
+        }
     }
 }
