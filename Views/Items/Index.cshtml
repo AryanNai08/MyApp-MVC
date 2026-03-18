@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Items";
+}
+
+<h2>Item Management</h2>
+
+@* ACTION BUTTONS *@
+<button id="loadItemsBtn">Load All Items</button>
+<button id="createNewBtn">Create New Item</button>
+
+<hr />
+
+
+<div id="formSection" style="display:none;">
+    <h3 id="formTitle">Create Item</h3>
+
+    <form id="itemForm">
+        <input type="hidden" id="itemId" />
+
+        <div>
+            <label>Name:</label>
+            <input type="text" id="name" required />
+        </div>
+
+        <div>
+            <label>Price:</label>
+            <input type="number" id="price" required />
+        </div>
+
+        <button type="submit">Save</button>
+    </form>
+</div>
+
+<hr />
+
+
+<table border="1" width="100%">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody id="itemTableBody">
+        <!-- JS will insert rows -->
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="~/js/item.js"></script>
