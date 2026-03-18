@@ -21,8 +21,12 @@ namespace MyApp_MVC.Repository
 
         public async Task<bool> DeleteItem(int id)
         {
-            var item=await _dbContext.Items.FindAsync(id);
-             _dbContext.Items.Remove(item);
+            var item = await _dbContext.Items.FindAsync(id);
+
+            if (item == null)
+                return false;
+
+            _dbContext.Items.Remove(item);
             await _dbContext.SaveChangesAsync();
 
             return true;

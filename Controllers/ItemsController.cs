@@ -14,75 +14,87 @@ namespace MyApp_MVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllItems()
-        {
-            var items = await _itemService.GetItemsAsync();
-            return View(items);
-        }
-
-        [HttpGet]
-        public IActionResult Create()
+        public IActionResult Index()
         {
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateItemDto dto)
+        [HttpGet]
+        public async Task<IActionResult> GetById(int id)
         {
-            if (!ModelState.IsValid)
-                return View(dto);
-
-            await _itemService.CreateItemAsync(dto);
-            return RedirectToAction("GetAllItems");
+            var item = await _itemService.GetItemById(id);
+            
+            return Ok(item);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> GetAllItems()
         {
             var items = await _itemService.GetItemsAsync();
-            var item = items.FirstOrDefault(i => i.Id == id);
-
-            if (item == null)
-                return NotFound();
-
-            return View(item);
+            return Ok(items);
         }
 
+ 
         [HttpPost]
-        public async Task<IActionResult> Edit(ItemDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateItemDto dto)
         {
             if (!ModelState.IsValid)
-                return View(dto);
+            {
+                return BadRequest(new
+                {
+                    success=false,
+                    message="Validation failed"
+                });
+
+            }
+
+            await _itemService.CreateItemAsync(dto);
+            return Ok(new
+            {
+                success=true,
+                message="Item created successfully!"
+            });
+           
+        }
+           
+
+        [HttpPut]
+        public async Task<IActionResult> Edit([FromBody] ItemDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Validation failed"
+                });
+            }
+                
 
             var result = await _itemService.UpdateItem(dto.Id, dto);
 
             if (!result)
                 return NotFound();
 
-            return RedirectToAction("GetAllItems");
+            return Ok(new
+            {
+                success = true,
+                message = "Item updated succesfully!"
+            });
         }
 
-        [HttpGet]
+
+        [HttpDelete]
         public async Task<IActionResult> Delete(int id)
-        {
-            var items = await _itemService.GetItemsAsync();
-            var item = items.FirstOrDefault(i => i.Id == id);
-
-            if (item == null)
-                return NotFound();
-
-            return View(item);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var result = await _itemService.DeleteItem(id);
 
-            if (!result)
-                return NotFound();
+            return Ok(new
+            {
+                success = true,
+                message = "Item deleted successfully!"
 
-            return RedirectToAction("GetAllItems");
+            });
         }
     }
 }

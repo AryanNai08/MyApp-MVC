@@ -6,6 +6,7 @@ namespace MyApp_MVC.Service
     public interface IItemService
     {
         Task<List<ItemDto>> GetItemsAsync();
+        Task<ItemDto> GetItemById(int id);
         Task<ItemDto>CreateItemAsync(CreateItemDto dto);
 
         Task<bool> UpdateItem(int id, ItemDto dto);
