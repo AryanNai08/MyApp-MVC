@@ -1,51 +1,71 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Dapper;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using MyApp_MVC.Data;
-using MyApp_MVC.Dtos;
 using MyApp_MVC.Models;
+using System.Data;
 
 namespace MyApp_MVC.Repository
 {
     public class ItemRepository : IItemRepository
     {
         private readonly MyAppDbContext _dbContext;
-        public ItemRepository(MyAppDbContext dbContext)
+        private readonly string _connectionString;
+        public ItemRepository(MyAppDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            _connectionString = configuration.GetConnectionString("defaultconnectionstring");
         }
+
+        private IDbConnection CreateConnection()
+            => new SqlConnection(_connectionString);
 
         public async Task CreateItem(Item item)
         {
-           await _dbContext.Items.AddAsync(item);
-            await _dbContext.SaveChangesAsync();
-        }
+            using var conn=CreateConnection();
+            var parameters = new
+            {
+                Name = item.Name,
+                Price = item.Price
+            };
 
-        public async Task<bool> DeleteItem(int id)
-        {
-            var item = await _dbContext.Items.FindAsync(id);
-
-            if (item == null)
-                return false;
-
-            _dbContext.Items.Remove(item);
-            await _dbContext.SaveChangesAsync();
-
-            return true;
-        }
-
-        public async Task<Item> Getitembyid(int id)
-        {
-            return await _dbContext.Items.FirstOrDefaultAsync(i=>i.Id==id);
+            await conn.ExecuteAsync("sp_CreateItem", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<List<Item>> ReadItems()
         {
-            return await _dbContext.Items.ToListAsync();
+            using var conn = CreateConnection();
+            var result = await conn.QueryAsync<Item>("sp_GetAllItems", commandType: CommandType.StoredProcedure);
+           return result.ToList();
+        }
+
+        public async Task<Item> Getitembyid(int id)
+        {
+            using var conn = CreateConnection();
+            var result = await conn.QueryFirstOrDefaultAsync<Item>("sp_GetById",new { Id=id }, commandType: CommandType.StoredProcedure);
+           return result;
         }
 
         public async Task UpdateItem(Item item)
         {
-            _dbContext.Items.Update(item);
-            await _dbContext.SaveChangesAsync();
+            using var conn = CreateConnection();
+            var parameters = new
+            {
+                Id=item.Id,
+                Name = item.Name,
+                Price = item.Price
+            };
+            var result = await conn.ExecuteAsync("sp_UpdateItem",parameters, commandType: CommandType.StoredProcedure);
+           
         }
+        public async Task<bool> DeleteItem(int id)
+        {
+            using var connection = CreateConnection();
+
+            var affectedRows = await connection.ExecuteAsync("sp_DeleteItem",new { Id = id },commandType: CommandType.StoredProcedure);
+
+            return affectedRows > 0;
+        }    
+
     }
 }
