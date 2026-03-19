@@ -25,7 +25,11 @@ function renderTable(items) {
     const tbody = $("#itemTableBody");
     tbody.empty();
 
-    if (!items || items.length === 0) {
+    // Filter active items first
+    const activeItems = items?.filter(item => !item.isDeleted);
+
+    // Check empty
+    if (!activeItems || activeItems.length === 0) {
         tbody.append(`
             <tr>
                 <td colspan="4" style="text-align:center;">No items found!!</td>
@@ -34,7 +38,7 @@ function renderTable(items) {
         return;
     }
 
-    items.forEach(item => {
+    activeItems.forEach(item => {
         tbody.append(`
             <tr>
                 <td>${item.id}</td>
@@ -48,7 +52,6 @@ function renderTable(items) {
         `);
     });
 }
-
 
 function deleteItem(id) {
     const confirmDelete = confirm("Are you sure you want to delete?");
