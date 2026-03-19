@@ -33,57 +33,7 @@ namespace MyApp_MVC.Controllers
             var items = await _itemService.GetItemsAsync();
             return Ok(items);
         }
-
- 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateItemDto dto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    success=false,
-                    message="Validation failed"
-                });
-
-            }
-
-            await _itemService.CreateItemAsync(dto);
-            return Ok(new
-            {
-                success=true,
-                message="Item created successfully!"
-            });
-           
-        }
-           
-
-        [HttpPut]
-        public async Task<IActionResult> Edit([FromBody] ItemDto dto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Validation failed"
-                });
-            }
                 
-
-            var result = await _itemService.UpdateItem(dto.Id, dto);
-
-            if (!result)
-                return NotFound();
-
-            return Ok(new
-            {
-                success = true,
-                message = "Item updated succesfully!"
-            });
-        }
-
-
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
@@ -94,6 +44,30 @@ namespace MyApp_MVC.Controllers
                 success = true,
                 message = "Item deleted successfully!"
 
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Save([FromBody] SaveItemDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Validation failed"
+                });
+            }
+
+            var id = await _itemService.SaveItems(dto);
+
+            return Ok(new
+            {
+                success = true,
+                message = dto.Id == null || dto.Id == 0
+                            ? "Item created successfully!"
+                            : "Item updated successfully!",
+                id = id
             });
         }
     }

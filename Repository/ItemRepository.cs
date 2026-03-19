@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using MyApp_MVC.Data;
+using MyApp_MVC.Dtos;
 using MyApp_MVC.Models;
 using System.Data;
 
@@ -20,18 +21,6 @@ namespace MyApp_MVC.Repository
         private IDbConnection CreateConnection()
             => new SqlConnection(_connectionString);
 
-        public async Task CreateItem(Item item)
-        {
-            using var conn=CreateConnection();
-            var parameters = new
-            {
-                Name = item.Name,
-                Price = item.Price
-            };
-
-            await conn.ExecuteAsync("sp_CreateItem", parameters, commandType: CommandType.StoredProcedure);
-        }
-
         public async Task<List<Item>> ReadItems()
         {
             using var conn = CreateConnection();
@@ -46,18 +35,6 @@ namespace MyApp_MVC.Repository
            return result;
         }
 
-        public async Task UpdateItem(Item item)
-        {
-            using var conn = CreateConnection();
-            var parameters = new
-            {
-                Id=item.Id,
-                Name = item.Name,
-                Price = item.Price
-            };
-            var result = await conn.ExecuteAsync("sp_UpdateItem",parameters, commandType: CommandType.StoredProcedure);
-           
-        }
         public async Task<bool> DeleteItem(int id)
         {
             using var connection = CreateConnection();
@@ -65,7 +42,20 @@ namespace MyApp_MVC.Repository
             var affectedRows = await connection.ExecuteAsync("sp_DeleteItem",new { Id = id },commandType: CommandType.StoredProcedure);
 
             return affectedRows > 0;
-        }    
+        }
 
+        public async Task<int> SaveItem(SaveItemDto dto)
+        {
+            using var conn = CreateConnection();
+            var parameters = new
+            {
+                Id = dto.Id,
+                Name = dto.Name,
+                Price = dto.Price
+            };
+            var result = await conn.QuerySingleAsync<int>("sp_SaveItem", parameters, commandType: CommandType.StoredProcedure);
+
+            return result;
+        }
     }
 }

@@ -15,18 +15,8 @@ namespace MyApp_MVC.Service
             _mapper=mapper;
         }
 
-        public async Task<ItemDto> CreateItemAsync(CreateItemDto dto)
-        {
-            if (string.IsNullOrEmpty(dto.Name))
-                throw new Exception("Name is required");
-            var newitem=_mapper.Map<Item>(dto);
-            await _itemRepository.CreateItem(newitem);
-            return _mapper.Map<ItemDto>(newitem);
-        }
-
         public async Task<bool> DeleteItem(int id)
         {
-           //var item=await _itemRepository.Getitembyid(id);
            var item=await _itemRepository.Getitembyid(id);
             if(item == null)
             {
@@ -53,21 +43,10 @@ namespace MyApp_MVC.Service
             return _mapper.Map<List<ItemDto>>(items);
         }
 
-        public async Task<bool> UpdateItem(int id, ItemDto dto)
+        public async Task<int> SaveItems(SaveItemDto dto)
         {
-            if (id == 0)
-            {
-                throw new Exception("Id must be greater than 0");
-            }
-            var item =await _itemRepository.Getitembyid(id);
-
-            if(item == null)
-            {
-                throw new Exception("NO item found with id{id}");
-            }
-            _mapper.Map(dto,item);
-            await _itemRepository.UpdateItem(item);
-            return true;
+            return await _itemRepository.SaveItem(dto);
         }
+
     }
 }

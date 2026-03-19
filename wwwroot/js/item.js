@@ -3,9 +3,7 @@
     $("#loadItemsBtn").click(loadItems);
     $("#createNewBtn").click(showCreateForm);
     $("#itemForm").submit(saveItem);
-
 });
-
 
 function loadItems() {
     $.ajax({
@@ -20,15 +18,12 @@ function loadItems() {
     });
 }
 
-
 function renderTable(items) {
     const tbody = $("#itemTableBody");
     tbody.empty();
 
-    // Filter active items first
     const activeItems = items?.filter(item => !item.isDeleted);
 
-    // Check empty
     if (!activeItems || activeItems.length === 0) {
         tbody.append(`
             <tr>
@@ -54,25 +49,20 @@ function renderTable(items) {
 }
 
 function deleteItem(id) {
-    const confirmDelete = confirm("Are you sure you want to delete?");
-    if (!confirmDelete) return;
+    if (!confirm("Are you sure you want to delete?")) return;
 
     $.ajax({
         url: "/Items/Delete?id=" + id,
         method: "DELETE",
         success: function (res) {
-            if (res.success) {
-                loadItems();
-            } else {
-                alert(res.message || "Delete failed");
-            }
+            if (res.success) loadItems();
+            else alert(res.message || "Delete failed");
         },
         error: function () {
             alert("Delete failed");
         }
     });
 }
-
 
 function editItem(id) {
     $.ajax({
@@ -92,61 +82,43 @@ function editItem(id) {
     });
 }
 
-
 function showCreateForm() {
     $("#formSection").show();
     $("#formTitle").text("Create Item");
 
+    $("#itemForm")[0].reset();
     $("#itemId").val("");
-    $("#name").val("");
-    $("#price").val("");
 }
-
 
 function saveItem(e) {
     e.preventDefault();
 
     const id = $("#itemId").val();
-    const name = $("#name").val();
-    const price = parseFloat($("#price").val());
 
-    if (!id) {
-        $.ajax({
-            url: "/Items/Create",
-            method: "POST",
-            contentType: "application/json",
-            data: JSON.stringify({ name: name, price: price }),
-            success: function (res) {
-                if (res.success) {
-                    $("#itemForm")[0].reset();
-                    $("#formSection").hide();
-                    loadItems();
-                } else {
-                    alert(res.message || "Create failed");
-                }
-            },
-            error: function () {
-                alert("Create failed");
+    const payload = {
+        id: id ? parseInt(id) : null,
+        name: $("#name").val(),
+        price: parseFloat($("#price").val())
+    };
+
+    console.log(payload);
+
+    $.ajax({
+        url: "/Items/Save",   
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (res) {
+            if (res.success) {
+                $("#itemForm")[0].reset();
+                $("#formSection").hide();
+                loadItems();
+            } else {
+                alert(res.message || "Save failed");
             }
-        });
-    } else {
-        $.ajax({
-            url: "/Items/Edit",
-            method: "PUT",
-            contentType: "application/json",
-            data: JSON.stringify({ id: parseInt(id), name: name, price: price }),
-            success: function (res) {
-                if (res.success) {
-                    $("#itemForm")[0].reset();
-                    $("#formSection").hide();
-                    loadItems();
-                } else {
-                    alert(res.message || "Update failed");
-                }
-            },
-            error: function () {
-                alert("Update failed");
-            }
-        });
-    }
+        },
+        error: function () {
+            alert("Save failed");
+        }
+    });
 }

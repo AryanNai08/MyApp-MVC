@@ -7,9 +7,7 @@ namespace MyApp_MVC.Service
     {
         Task<List<ItemDto>> GetItemsAsync();
         Task<ItemDto> GetItemById(int id);
-        Task<ItemDto>CreateItemAsync(CreateItemDto dto);
-
-        Task<bool> UpdateItem(int id, ItemDto dto);
         Task<bool> DeleteItem(int id);
+        Task<int> SaveItems(SaveItemDto dto);
     }
 }
